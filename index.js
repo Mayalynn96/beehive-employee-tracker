@@ -39,11 +39,10 @@ const start = async () => {
                 addEmployee();
                 break;
             case "Update an employee role":
-                console.log("Update an employee role");
+                updateEmployeeRole();
                 break;
             case "Quit":
                 return console.log('Goodbye!');
-                break;
         }
     } catch (err) {
         console.log(err);
@@ -226,6 +225,70 @@ const addEmployee = () => {
                     }
                 })
               }) 
+        }
+    })
+}
+
+const updateEmployeeRole = () =>{
+    let employeeData = '';
+    let employeeList = [];
+    let rolesData = '';
+    const allRoles = [];
+    db.query(`SELECT * FROM roles`, (err, res) => {
+        rolesData = res;
+        if (err) {
+            console.log(err);
+        } else {
+            res.forEach((role)=>{
+                allRoles.push(role.title)
+            })
+        }
+    })
+    db.query('SELECT * FROM employees', (err, res)=>{
+        if(err){
+            console.log(err);
+        } else {
+            employeeData = res;
+            res.forEach((employee)=>{
+                const fullName = employee.first_name + ' ' + employee.last_name
+                employeeList.push(fullName)
+            })
+            inquirer.prompt([
+                {
+                   type: 'list', 
+                   name: 'employee',
+                   message: "Which employee's role do you want to update",
+                   choices: employeeList
+                },
+                {
+                  type: 'list',
+                  name: 'role',
+                  message: 'Which role do you want to assign the selected employee?',
+                  choices: allRoles
+                }
+              ]).then((userInput)=>{
+                  let employeeId = '';
+                  let roleId = '';
+                  employeeData.forEach((employee)=>{
+                      const fullName = employee.first_name + " " + employee.last_name;
+                      if(fullName===userInput.employee){
+                          employeeId = employee.id
+                      }
+                  })
+                  rolesData.forEach((role)=>{
+                      if(role.title===userInput.role){
+                          roleId = role.id
+                      }
+                  })
+                  db.query('UPDATE employees SET role_id=? WHERE id=?', [roleId,employeeId], (err,res)=>{
+                      if(err){
+                          console.log(err);
+                      } else {
+                          console.log(userInput.employee + "'s role has been updated to " + userInput.role);
+                          start();
+                      }
+                  })
+              })
         }
     })
 }
