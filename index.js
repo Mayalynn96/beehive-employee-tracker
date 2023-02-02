@@ -16,7 +16,7 @@ const start = async () => {
                 type: 'list',
                 name: 'userChoice',
                 message: 'What would you like to do?',
-                choices: ["View all departments", "View all roles", "View all employees", "Add a department", "Add a role", "Add an employee", "Update an employee role", "Quit"]
+                choices: ["View all departments", "View all roles", "View all employees", "Add a department", "Add a role", "Add an employee", "Update an employee role","Update an employee manager", "Quit"]
             }
         ])
         switch (options.userChoice) {
@@ -40,6 +40,9 @@ const start = async () => {
                 break;
             case "Update an employee role":
                 updateEmployeeRole();
+                break;
+            case "Update an employee manager":
+                updateEmployeeManager();
                 break;
             case "Quit":
                 return console.log('Goodbye!');
@@ -288,6 +291,65 @@ const updateEmployeeRole = () =>{
                           start();
                       }
                   })
+              })
+        }
+    })
+}
+
+const updateEmployeeManager = () => {
+    let employeeData = '';
+    let employeeList = [];
+    let possibleManager = [];
+    db.query('SELECT * FROM employees', (err, res)=>{
+        if(err){
+            console.log(err);
+        } else {
+            employeeData = res;
+            possibleManager.push("none")
+            res.forEach((employee)=>{
+                const fullName = employee.first_name + ' ' + employee.last_name
+                employeeList.push(fullName)
+                possibleManager.push(fullName)
+            })
+            inquirer.prompt([
+                {
+                   type: 'list', 
+                   name: 'employee',
+                   message: "Which employee's manager do you want to update",
+                   choices: employeeList
+                },
+                {
+                  type: 'list',
+                  name: 'manager',
+                  message: 'Which role do you want to assign the selected employee?',
+                  choices: possibleManager
+                }
+              ]).then((userInput)=>{
+                let employeeId = '';
+                let managerId = '';
+                if(userInput.employee===userInput.manager){
+                    console.log("An emloyee can't be their own manager");
+                } else {
+                    employeeData.forEach((employee)=>{
+                        const fullName = employee.first_name + " " + employee.last_name;
+                        if(fullName===userInput.employee){
+                            employeeId = employee.id
+                        }
+                        if(fullName===userInput.manager){
+                            managerId = employee.id
+                        } else if(userInput.manager==='none'){
+                            managerId = null;
+                        }
+                    })
+                    db.query('UPDATE employees SET manager_id=? WHERE id=?', [managerId,employeeId], (err,res)=>{
+                        if(err){
+                            console.log(err);
+                        } else {
+                            console.log(userInput.employee + "'s manager has been updated to " + userInput.manager);
+                            start();
+                        }
+                    })
+                }
               })
         }
     })
