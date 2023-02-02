@@ -8,7 +8,7 @@ INSERT INTO roles(title,salary,department_id)
 VALUES
 ("Production manager",70000,1),
 ("Honey maker",50000,1),
-("Quality Control",85000,1),
+("Quality Control",60000,1),
 ("Janitor",45000,2),
 ("Sales manager",70000,3),
 ("Cashier",45000,3),
@@ -18,7 +18,7 @@ VALUES
 ("Beetrice","Honeydew",1,NULL),
 ("Albeert", "Combs",2,1),
 ("Lance", "Abeet",2,1),
-("Smoky", "Bee",2,1),
+("Smoky", "Bee",3,1),
 ("Jane", "Itor",4,NULL),
 ("Molly", "Sweets",5,NULL),
 ("Denis", "Sined",6,4),

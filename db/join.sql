@@ -1,6 +1,8 @@
 USE employees_db;
-SELECT employees.id,first_name,last_name,manager_id,name,title,salary FROM employees
+SELECT A.first_name,A.last_name,title,name AS department,salary,B.first_name AS manager FROM employees A 
+LEFT JOIN employees B
+ON A.manager_id=B.id
 JOIN roles
-ON role_id=roles.id
+ON A.role_id=roles.id
 JOIN departments
-ON department_id=departments.id;
+ON department_id=departments.id
