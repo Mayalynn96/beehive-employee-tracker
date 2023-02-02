@@ -16,7 +16,7 @@ const start = async () => {
                 type: 'list',
                 name: 'userChoice',
                 message: 'What would you like to do?',
-                choices: ["View all departments", "View all roles", "View all employees", "Add a department", "Add a role", "Add an employee", "Update an employee role","Update an employee manager", "Quit"]
+                choices: ["View all departments", "View all roles", "View all employees", "View all employees by manager", "View all employees by department", "Add a department", "Add a role", "Add an employee", "Update an employee role","Update an employee manager", "Quit"]
             }
         ])
         switch (options.userChoice) {
@@ -28,6 +28,12 @@ const start = async () => {
                 break;
             case "View all employees":
                 viewAllEmp();
+                break;
+            case "View all employees by manager":
+                viewByManager();
+                break;
+            case "View all employees by department":
+                viewByDep();
                 break;
             case "Add a department":
                 addDep();
@@ -78,13 +84,49 @@ const viewAllRols = () => {
 
 const viewAllEmp = () => {
     db.query(`
-SELECT A.id,A.first_name,A.last_name,title,name AS department,salary,CONCAT (B.first_name, " ", B.last_name) AS manager FROM employees A
+SELECT A.id,A.first_name,A.last_name,title,salary,name AS department,CONCAT (B.first_name, " ", B.last_name) AS manager FROM employees A
 LEFT JOIN employees B
 ON A.manager_id=B.id
 JOIN roles
 ON A.role_id=roles.id
 JOIN departments
 ON department_id=departments.id`, (err, res) => {
+        if (err) {
+            console.log(err);
+        } else {
+            console.table(res);
+            start();
+        }
+    })
+}
+
+const viewByManager = () => {
+    db.query(`
+    SELECT CONCAT(B.first_name, " ", B.last_name) AS manager,name AS department,Group_CONCAT(A.first_name, " ", A.last_name, " - ",title) AS employees FROM employees A 
+    JOIN employees B
+    ON A.manager_id=B.id
+    JOIN roles
+    ON A.role_id=roles.id
+    JOIN departments
+    ON department_id=departments.id
+    GROUP BY manager`, (err, res) => {
+        if (err) {
+            console.log(err);
+        } else {
+            console.table(res);
+            start();
+        }
+    })
+}
+
+const viewByDep = () => {
+    db.query(`
+    SELECT name AS department,Group_CONCAT(first_name, " ",last_name, " - ",title) AS employees FROM employees
+    JOIN roles
+    ON role_id=roles.id
+    JOIN departments
+    ON department_id=departments.id
+    GROUP BY department`, (err, res) => {
         if (err) {
             console.log(err);
         } else {
