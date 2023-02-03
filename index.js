@@ -2,6 +2,7 @@ const mysql = require('mysql2');
 const inquirer = require('inquirer');
 const consoleTable = require('console.table');
 
+// Connecting database
 const db = mysql.createConnection({
     host: 'localhost',
     user: 'root',
@@ -9,14 +10,16 @@ const db = mysql.createConnection({
     database: 'employees_db'
 });
 
+// Starting function
 const start = async () => {
     try {
+        // Start selection prompt
         const options = await inquirer.prompt([
             {
                 type: 'list',
                 name: 'userChoice',
                 message: 'What would you like to do?',
-                choices: ["View all departments", "View all roles", "View all employees", "View all employees by manager", "View all employees by department", "Add a department", "Add a role", "Add an employee", "Update an employee role", "Update an employee manager", "Remove employee", "Remove role", "Remove department", "See total salaries by department", "See total salaries by role", "Quit"]
+                choices: ["View all departments", "Add a department", "Remove department", "View all roles", "Add a role", "Remove role", "View all employees", "View employees by manager", "View employees by department", "Add an employee", "Update an employee role", "Update an employee manager", "Remove employee", "See total salaries by department", "See total salaries by role", "Quit"]
             }
         ])
         switch (options.userChoice) {
@@ -29,10 +32,10 @@ const start = async () => {
             case "View all employees":
                 viewAllEmp();
                 break;
-            case "View all employees by manager":
+            case "View employees by manager":
                 viewByManager();
                 break;
-            case "View all employees by department":
+            case "View employees by department":
                 viewByDep();
                 break;
             case "Add a department":
@@ -74,6 +77,7 @@ const start = async () => {
     }
 }
 
+// Welcome text
 console.log(`      
 --------------------------------------
                                    
@@ -84,6 +88,7 @@ console.log(`
 
 start()
 
+// View all departments function
 const viewAllDep = () => {
     db.query('SELECT * FROM departments', (err, res) => {
         if (err) {
@@ -95,6 +100,7 @@ const viewAllDep = () => {
     })
 }
 
+// view all roles function
 const viewAllRols = () => {
     db.query('SELECT roles.id,title,name AS department,salary FROM roles JOIN departments on department_id=departments.id', (err, res) => {
         if (err) {
@@ -106,6 +112,7 @@ const viewAllRols = () => {
     })
 }
 
+// view all employees function
 const viewAllEmp = () => {
     db.query(`
 SELECT A.id,A.first_name,A.last_name,title,salary,name AS department,CONCAT (B.first_name, " ", B.last_name) AS manager FROM employees A
@@ -125,6 +132,7 @@ ORDER BY department,salary DESC`, (err, res) => {
     })
 }
 
+// view employees by manager function
 const viewByManager = () => {
     db.query(`
     SELECT CONCAT(B.first_name, " ", B.last_name) AS manager,name AS department,Group_CONCAT(A.first_name, " ", A.last_name, " - ",title) AS employees FROM employees A 
@@ -144,6 +152,7 @@ const viewByManager = () => {
     })
 }
 
+// view employees by department function
 const viewByDep = () => {
     db.query(`
     SELECT name AS department,Group_CONCAT(first_name, " ",last_name, " - ",title) AS employees FROM employees
@@ -161,6 +170,7 @@ const viewByDep = () => {
     })
 }
 
+// add department function
 const addDep = async () => {
     const userInput = await inquirer.prompt([
         {
@@ -179,6 +189,7 @@ const addDep = async () => {
     })
 }
 
+// add role function
 const addRole = () => {
     db.query('SELECT * FROM departments', (err, res) => {
         if (err) {
@@ -225,6 +236,7 @@ const addRole = () => {
     })
 }
 
+// add employee function
 const addEmployee = () => {
     let employeeData = [];
     db.query('SELECT * FROM employees', (err, res) => {
@@ -300,6 +312,7 @@ const addEmployee = () => {
     })
 }
 
+// update employee role function
 const updateEmployeeRole = () => {
     const employeeData = [];
     const rolesData = [];
@@ -359,6 +372,7 @@ const updateEmployeeRole = () => {
 
 }
 
+// update employee manager function
 const updateEmployeeManager = () => {
     db.query('SELECT * FROM employees', (err, res) => {
         if (err) {
@@ -417,6 +431,7 @@ const updateEmployeeManager = () => {
     })
 }
 
+// delete employee function
 const deleteEmployee = () => {
     db.query('SELECT * FROM employees', (err, res) => {
         if (err) {
@@ -453,6 +468,7 @@ const deleteEmployee = () => {
     })
 }
 
+// delete role function
 const deleteRole = () => {
     db.query('SELECT * FROM roles', (err, res) => {
         if (err) {
@@ -489,6 +505,7 @@ const deleteRole = () => {
     })
 }
 
+// delete departement function
 const deleteDepartment = () => {
     db.query('SELECT * FROM departments', (err, res) => {
         if (err) {
@@ -525,6 +542,7 @@ const deleteDepartment = () => {
     })
 }
 
+// get total of all saleries by department function
 const getTotalByDepartment = () => {
     db.query(`
 SELECT name AS department,SUM(salary) AS total FROM employees A
@@ -544,6 +562,7 @@ GROUP BY department`, (err, res) => {
     })
 }
 
+// get total of all saleries by role function
 const getTotalByRole = () => {
     db.query(`
 SELECT name AS department,title AS role,SUM(salary) AS total FROM employees A
