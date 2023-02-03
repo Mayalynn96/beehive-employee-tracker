@@ -74,6 +74,14 @@ const start = async () => {
     }
 }
 
+console.log(`      
+--------------------------------------
+                                   
+  🐝 Beehive - Employee Tracker 🍯 
+                                     
+--------------------------------------
+        `);
+
 start()
 
 const viewAllDep = () => {
