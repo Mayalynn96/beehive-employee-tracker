@@ -21,7 +21,7 @@ VALUES
 ("Smoky", "Bee",3,1),
 ("Jane", "Itor",4,NULL),
 ("Molly", "Sweets",5,NULL),
-("Denis", "Sined",6,4),
-("Aurora", "Borealis",6,4),
+("Denis", "Sined",6,6),
+("Aurora", "Borealis",6,6),
 ("Vince", "Black",5,NULL),
-("Lucy", "Red",7,8);
+("Lucy", "Red",7,9);
