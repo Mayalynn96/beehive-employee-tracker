@@ -16,7 +16,7 @@ const start = async () => {
                 type: 'list',
                 name: 'userChoice',
                 message: 'What would you like to do?',
-                choices: ["View all departments", "View all roles", "View all employees", "View all employees by manager", "View all employees by department", "Add a department", "Add a role", "Add an employee", "Update an employee role", "Update an employee manager", "Remove employee", "Remove role", "Remove department", "See total salaries by department", "Quit"]
+                choices: ["View all departments", "View all roles", "View all employees", "View all employees by manager", "View all employees by department", "Add a department", "Add a role", "Add an employee", "Update an employee role", "Update an employee manager", "Remove employee", "Remove role", "Remove department", "See total salaries by department", "See total salaries by role", "Quit"]
             }
         ])
         switch (options.userChoice) {
@@ -61,6 +61,9 @@ const start = async () => {
                 break;
             case "See total salaries by department":
                 getTotalByDepartment();
+                break;
+            case "See total salaries by role":
+                getTotalByRole();
                 break;
             case "Quit":
                 console.log('Goodbye!');
@@ -524,6 +527,25 @@ ON A.role_id=roles.id
 JOIN departments
 ON department_id=departments.id
 GROUP BY department`, (err, res) => {
+        if (err) {
+            console.log(err);
+        } else {
+            console.table('\n', res, '\n');
+            start();
+        }
+    })
+}
+
+const getTotalByRole = () => {
+    db.query(`
+SELECT name AS department,title AS role,SUM(salary) AS total FROM employees A
+LEFT JOIN employees B
+ON A.manager_id=B.id
+JOIN roles
+ON A.role_id=roles.id
+JOIN departments
+ON department_id=departments.id
+GROUP BY role`, (err, res) => {
         if (err) {
             console.log(err);
         } else {
